@@ -1,0 +1,60 @@
+{% extends "catalog/base.html" %}
+
+{% block title %}RetroCinema IA - Catálogo{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <div class="page-subtitle">Catálogo</div>
+    <h1 class="page-title">Catálogo retro</h1>
+    <p class="page-lead">
+      Películas clásicas con doblaje original y versiones mejoradas con voces generadas por IA
+      para sonar naturales hoy en día, sin perder la esencia ochentera.
+    </p>
+  </div>
+
+  <section class="page-main">
+    {% if movies %}
+      <div class="grid">
+        {% for movie in movies %}
+          <article class="card">
+            {% if movie.poster %}
+              <img src="{{ movie.poster.url }}" alt="{{ movie.title }}">
+            {% else %}
+              <div class="card-fallback">
+                Sin póster
+              </div>
+            {% endif %}
+            <div class="card-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
+                <h2 style="font-size:0.98rem;margin:0;font-weight:600;">
+                  {{ movie.title }}
+                </h2>
+                <span class="badge-year">{{ movie.year }}</span>
+              </div>
+              {% if movie.genre %}
+                <div style="margin-bottom:0.45rem;">
+                  <span class="badge-genre">{{ movie.genre }}</span>
+                </div>
+              {% endif %}
+              <a href="{% url 'movie_detail' movie.pk %}" class="btn-primary">
+                Ver ficha
+                <span style="font-size:0.9rem;">▶</span>
+              </a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <p class="empty-title">No hay películas aún.</p>
+        <p class="empty-text">
+          Entra en el panel de administración y sube las primeras joyas ochenteras
+          para probar el flujo de póster, vídeo y pistas de audio IA.
+        </p>
+        <a href="/admin/" class="btn-primary">
+          Ir al panel de admin
+        </a>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

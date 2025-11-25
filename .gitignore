@@ -1,0 +1,8 @@
+﻿# Python / Django
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# Archivos de medios locales (no subir nunca)
+media/movies/
+media/*.mp4
