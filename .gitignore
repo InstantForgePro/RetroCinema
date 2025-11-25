@@ -6,3 +6,4 @@ __pycache__/
 # Archivos de medios locales (no subir nunca)
 media/movies/
 media/*.mp4
+.venv/
