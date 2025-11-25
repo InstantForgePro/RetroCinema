@@ -15,7 +15,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-@303skk%d@pnkw-nzoot14ofw7_&#ycp-yy@ayc3&n@93$vqy-'
 DEBUG = False
-ALLOWED_HOSTS = ["retrocinemaia.com", "www.retrocinemaia.com"]
+ALLOWED_HOSTS = [
+    "retrocinemaia.com",
+    "www.retrocinemaia.com",
+    "72.61.194.249",
+    "localhost",
+]
 
 
 # Application definition
@@ -101,11 +106,12 @@ USE_TZ = True
 
 # Static files
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media (para pósters, vídeos, etc.)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type
