@@ -262,3 +262,93 @@ Presets de mezcla “cine ochentero”.
 
 
 Por ahora, un paso útil > diez diagramas mentales.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Qué hacer cada vez que cambies algo
+Ciclo completo, versión para neuronas en modo ahorro:
+
+
+Ventana 1 (local)
+
+
+Editas código / plantillas.
+
+
+Pruebas en http://127.0.0.1:8000/ con:
+python manage.py runserver
+
+
+
+
+
+Cuando funcione en local
+
+
+Parar runserver (CTRL + C).
+
+
+Hacer:
+git add .
+git commit -m "Mensaje decente"
+git push origin main
+
+
+
+
+
+Ventana 2 (servidor)
+
+
+ssh root@72.61.194.249
+
+
+Dentro:
+cd /srv/RetroCinema
+git fetch
+git reset --hard origin/main
+source .venv/bin/activate
+python manage.py migrate
+python manage.py collectstatic --noinput
+systemctl restart gunicorn-retrocinema
+systemctl restart nginx
+
+
+
+
+
+Y ya está, retrocinemaia.com actualizado.
+
+Si sigues este esquema de 2 ventanas / 2 mundos separados, te libras del 90% de los errores raros tipo sudo en Windows, source en PowerShell y demás inventos creativos.
