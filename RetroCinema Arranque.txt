@@ -1,5 +1,11 @@
 2️⃣ Flujo “normal” a partir de ahora (para no liarla otra vez)
 
+
+
+En el VPS, mira dónde está el archivo de la peli:
+ssh root@72.61.194.249
+
+
 Cuando cambies cosas en el código de RetroCinema en tu PC:
 
 En tu portátil (Windows):
