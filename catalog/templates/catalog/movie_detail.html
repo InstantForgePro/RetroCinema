@@ -1,157 +1,94 @@
-{% extends "catalog/base.html" %}
+<h1 class="text-3xl font-bold mb-4 text-white">
+  {{ movie.title }} ({{ movie.year }})
+</h1>
 
-{% block extra_head %}
+<div class="mb-4">
+  <p class="text-gray-300 text-sm">
+    {{ movie.synopsis }}
+  </p>
+</div>
+
+{% with default_track=movie.audio_tracks.first %}
+  <div class="mb-4">
+    <label for="audioSelect" class="block text-sm font-medium text-gray-200 mb-1">
+      Pista de audio
+    </label>
+    <select id="audioSelect"
+            class="bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100">
+      {% for track in movie.audio_tracks.all %}
+        <option value="{{ track.audio_file.url }}"
+                {% if track.is_default or forloop.first %}selected{% endif %}>
+          {{ track.label }} ({{ track.get_language_display }})
+          {% if track.is_ai_generated %} [IA]{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="space-y-2">
+    <video id="movieVideo"
+           class="w-full max-w-4xl rounded-lg border border-gray-700 bg-black"
+           controls
+           preload="metadata"
+           muted>
+      <source src="{{ movie.video_file.url }}" type="video/mp4">
+      Tu navegador no soporta vídeo HTML5.
+    </video>
+
+    <!-- Audio externo -->
+    {% if default_track %}
+      <audio id="movieAudio">
+        <source src="{{ default_track.audio_file.url }}">
+      </audio>
+    {% endif %}
+  </div>
+{% endwith %}
+
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const mainVideo = document.getElementById('main-video');
-  const audioTrack = document.getElementById('audio-track');
-  const audioSelect = document.getElementById('audio-select');
-  const adContainer = document.getElementById('ad-container');
-  const adVideo = document.getElementById('ad-video');
-  const playButton = document.getElementById('play-button');
+  const video = document.getElementById('movieVideo');
+  const audio = document.getElementById('movieAudio');
+  const select = document.getElementById('audioSelect');
 
-  let preRollPlayed = false;
-
-  if (!mainVideo || !audioTrack) return;
-
-  // Cambiar pista de audio
-  if (audioSelect) {
-    audioSelect.addEventListener('change', function () {
-      const url = this.value;
-      const currentTime = mainVideo.currentTime || 0;
-      const wasPlaying = !mainVideo.paused;
-
-      audioTrack.src = url;
-      audioTrack.currentTime = currentTime;
-
-      if (wasPlaying) {
-        audioTrack.play();
-      }
+  if (video && audio) {
+    // Sincronizar play/pause
+    video.addEventListener('play', () => {
+      audio.currentTime = video.currentTime;
+      audio.play().catch(() => {});
     });
-  }
 
-  // Sincronizar audio con vídeo
-  mainVideo.addEventListener('play', function () {
-    if (!preRollPlayed && adVideo && adContainer) {
-      // Mostrar anuncio pre-roll
-      adContainer.style.display = 'block';
-      adVideo.currentTime = 0;
-      adVideo.play();
-      mainVideo.pause();
-      return;
+    video.addEventListener('pause', () => {
+      audio.pause();
+    });
+
+    video.addEventListener('seeking', () => {
+      audio.currentTime = video.currentTime;
+    });
+
+    video.addEventListener('ratechange', () => {
+      audio.playbackRate = video.playbackRate;
+    });
+
+    // Cambio de pista
+    if (select) {
+      select.addEventListener('change', function () {
+        const newSrc = this.value;
+        const currentTime = video.currentTime || 0;
+        const wasPlaying = !video.paused;
+
+        audio.pause();
+        audio.src = newSrc;
+        audio.load();
+
+        audio.addEventListener('loadedmetadata', function handler() {
+          audio.removeEventListener('loadedmetadata', handler);
+          if (currentTime > 0 && currentTime < audio.duration) {
+            audio.currentTime = currentTime;
+          }
+          if (wasPlaying) {
+            audio.play().catch(() => {});
+          }
+        });
+      });
     }
-    audioTrack.play();
-  });
-
-  mainVideo.addEventListener('pause', function () {
-    audioTrack.pause();
-  });
-
-  mainVideo.addEventListener('seeking', function () {
-    audioTrack.currentTime = mainVideo.currentTime;
-  });
-
-  mainVideo.addEventListener('timeupdate', function () {
-    if (Math.abs(audioTrack.currentTime - mainVideo.currentTime) > 0.3) {
-      audioTrack.currentTime = mainVideo.currentTime;
-    }
-  });
-
-  // Botón de play grande
-  if (playButton) {
-    playButton.addEventListener('click', function () {
-      mainVideo.play();
-    });
   }
-
-  // Cuando termine el anuncio, continuar peli
-  if (adVideo) {
-    adVideo.addEventListener('ended', function () {
-      preRollPlayed = true;
-      adContainer.style.display = 'none';
-      mainVideo.play();
-    });
-  }
-
-});
 </script>
-{% endblock %}
-
-{% block content %}
-  <a href="/" style="font-size:0.85rem;opacity:0.8;">← Volver al catálogo</a>
-
-  <section style="margin-top:1.5rem;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.2fr);gap:1.5rem;align-items:flex-start;">
-    <div>
-      <div style="position:relative;background:#020617;border-radius:8px;overflow:hidden;border:1px solid #1f2937;">
-        <video id="main-video" width="100%" controls muted style="display:block;background:#000;">
-          <source src="{{ movie.video_file.url }}" type="video/mp4">
-          Tu navegador no soporta vídeo HTML5.
-        </video>
-
-        <button id="play-button"
-          style="position:absolute;inset:0;margin:auto;width:70px;height:70px;border-radius:999px;border:none;
-                 background:rgba(15,23,42,0.75);backdrop-filter:blur(6px);color:#e5e7eb;font-size:1.7rem;cursor:pointer;">
-          ►
-        </button>
-
-        <!-- Audio separado -->
-        {% if audio_tracks %}
-          <audio id="audio-track">
-            <source src="{{ audio_tracks.0.audio_file.url }}">
-          </audio>
-        {% endif %}
-      </div>
-
-      <!-- Contenedor anuncio pre-roll -->
-      <div id="ad-container"
-           style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:50;align-items:center;justify-content:center;">
-        <div style="background:#020617;padding:1rem;border-radius:8px;border:1px solid #1f2937;max-width:640px;width:90%;">
-          <p style="margin-top:0;margin-bottom:0.5rem;font-size:0.9rem;opacity:0.8;">Anuncio · tu peli empezará en unos segundos</p>
-          {% if ad_slots %}
-            {% with first_slot=ad_slots.0 %}
-              <video id="ad-video" width="100%" controls>
-                <source src="{{ first_slot.ad.video_file.url }}" type="video/mp4">
-              </video>
-            {% endwith %}
-          {% else %}
-            <p style="font-size:0.9rem;">(Aquí iría tu vídeo de publicidad)</p>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <aside>
-      <h1 style="margin-top:0;font-size:1.6rem;">{{ movie.title }}</h1>
-      <p style="font-size:0.9rem;opacity:0.8;margin-bottom:0.5rem;">
-        {{ movie.year }}
-        {% if movie.country %}· {{ movie.country }}{% endif %}
-        {% if movie.genre %}· {{ movie.genre }}{% endif %}
-      </p>
-
-      {% if movie.synopsis %}
-        <p style="font-size:0.95rem;line-height:1.5;margin-bottom:1rem;">{{ movie.synopsis }}</p>
-      {% endif %}
-
-      {% if audio_tracks %}
-        <div style="margin-bottom:1rem;">
-          <label for="audio-select" style="display:block;font-size:0.85rem;margin-bottom:0.3rem;">Pista de audio</label>
-          <select id="audio-select"
-                  style="width:100%;padding:0.4rem 0.5rem;border-radius:6px;border:1px solid #4b5563;background:#020617;color:#e5e7eb;">
-            {% for track in audio_tracks %}
-              <option value="{{ track.audio_file.url }}">
-                {{ track.label }} {% if track.is_ai_generated %}(IA){% endif %}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-      {% else %}
-        <p style="font-size:0.85rem;opacity:0.8;">No hay pistas de audio cargadas todavía.</p>
-      {% endif %}
-
-      <div style="margin-top:1.5rem;font-size:0.8rem;opacity:0.7;">
-        Contenido licenciado o de dominio público. El doblaje IA se ha generado respetando la obra original,
-        sólo modernizando voces y expresiones para oídos actuales.
-      </div>
-    </aside>
-  </section>
-{% endblock %}

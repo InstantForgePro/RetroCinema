@@ -1,0 +1,258 @@
+2️⃣ Flujo “normal” a partir de ahora (para no liarla otra vez)
+
+Cuando cambies cosas en el código de RetroCinema en tu PC:
+
+En tu portátil (Windows):
+
+cd C:\Users\Eugen\Desktop\RetroCinema
+# editas lo que quieras (templates, views, etc.)
+git status
+git add .
+git commit -m "Descripción decente del cambio"
+git push
+
+
+En el servidor (VPS):
+
+ssh root@72.61.194.249
+cd /srv/RetroCinema
+
+# Traer cambios
+sudo -u retrocinema git pull
+
+# Activar entorno (si necesitas hacer cosas Django)
+source .venv/bin/activate
+
+# Si has tocado modelos:
+python manage.py migrate
+
+# Si has tocado CSS/JS en static:
+python manage.py collectstatic --noinput
+
+# Reiniciar gunicorn para que coja el nuevo código
+systemctl restart gunicorn-retrocinema
+systemctl status gunicorn-retrocinema  # comprobar que sigue "active (running)"
+
+
+Nada de runserver en el VPS ya. Eso se queda solo para tu máquina local.
+
+Tu stack ahora mismo:
+
+Nginx: frontal HTTP/HTTPS y estáticos.
+
+Gunicorn: ejecuta Django detrás.
+
+Django: RetroCinema sirviendo cine retro con SSL y todo firmado.
+
+PASOS TRADUCCION PELIS
+
+Bien, respiramos, soltamos el teclado un segundo… y SOLO tocamos Santa Claus. Nada de “pipeline de Hollywood” todavía, que son las 3 de la mañana y tu servidor ya ha sufrido bastante.
+Te marco un plan muy concreto y realista para esa peli: una ruta rápida pero bastante pro para 2025.
+
+Objetivo ahora mismo
+Para Santa Claus (1959):
+
+
+Conseguir una pista de doblaje IA en español que suene decente.
+
+
+Mantener la música y efectos originales de la peli.
+
+
+Volver a subirla a RetroCinema como “versión IA v1”.
+
+
+Nada de automatizar todo el catálogo todavía. Solo un experimento sólido.
+
+Paso 1: Saca el vídeo de Santa Claus del servidor
+En el VPS, mira dónde está el archivo de la peli:
+ssh root@72.61.194.249
+cd /srv/RetroCinema
+find media -maxdepth 4 -iname "*santa*"
+
+Te saldrá algo tipo:
+media/movies/santa_claus_1959.mp4
+
+Desde tu Windows (PowerShell):
+cd C:\Users\Eugen\Desktop
+scp root@72.61.194.249:/srv/RetroCinema/media/movies/santa_claus_1959.mp4 .\santa_claus_1959.mp4
+
+Con eso tienes la peli local para jugar sin romper nada en producción.
+
+Paso 2: Ruta realista para el DOBLAJE IA (sin volverte loco)
+Para un primer experimento de calidad decente, yo haría esto:
+Opción A (recomendada para empezar): usar un servicio de doblaje ya hecho
+Ejemplos: ElevenLabs Dubbing, Deepdub, Rask, Papercup, etc.
+Como quieres algo que funcione ya y no montar un laboratorio de I+D, esta es la forma sensata:
+
+
+Te creas cuenta en uno de estos (pago por minutos, perfecto para 1 peli).
+
+
+Subes santa_claus_1959.mp4.
+
+
+Eliges:
+
+
+Idioma destino: Español (España) o el que quieras.
+
+
+Voz: una voz principal que te guste (masculina/femenina).
+
+
+Estilo: “cinemático”, “natural”, lo que ofrezcan.
+
+
+
+
+El sistema:
+
+
+Detecta voz original.
+
+
+Mantiene música y FX lo mejor posible.
+
+
+Sustituye diálogos por voz IA sincronizada.
+
+
+
+
+Cuando termine, descargas algo como:
+santa_claus_1959_dub_es.mp4
+
+Y listo: ya tienes una mezcla completa con doblaje IA + FX originales.
+
+Esta ruta es la más coherente hoy si quieres algo que suene “pro” sin perder semanas montando tooling. Después ya refinamos con tu pipeline propio.
+
+
+Paso 3: Reempaquetar / limpiar el archivo (opcional pero recomendable)
+Si el servicio te devuelve solo audio, no vídeo, no pasa nada:
+# extraes el vídeo original sin audio
+ffmpeg -i santa_claus_1959.mp4 -an -vcodec copy santa_video_sin_audio.mp4
+
+# mezclas el vídeo + nuevo audio IA
+ffmpeg -i santa_video_sin_audio.mp4 -i santa_doblaje_IA_es.wav \
+  -c:v copy -c:a aac -b:a 192k \
+  santa_claus_1959_IA_ES_final.mp4
+
+Si ya te devuelve el mp4 completo, este paso te lo saltas.
+
+Paso 4: Subir la versión IA a RetroCinema
+Dos opciones fáciles, sin tocar mucho código Django todavía:
+Opción 1: Reemplazar el archivo de vídeo de la película existente
+
+
+Entra al admin: https://retrocinemaia.com/admin/.
+
+
+Ve a Catalog → Movies → Santa Claus.
+
+
+En el campo de vídeo (donde subiste el original), sube santa_claus_1959_IA_ES_final.mp4.
+
+
+Guardas.
+
+
+Resultado:
+El “Santa Claus” que ya ves en retrocinemaia.com ahora reproduce la versión doblada IA.
+Opción 2: Mantener original + versión IA (para comparar más adelante)
+Si tu modelo Movie tiene solo un campo de vídeo, de momento es más simple:
+
+
+Deja solo la versión IA online.
+
+
+Guarda el original en local y/o en alguna carpeta de backup del VPS.
+
+
+Más adelante ya te hago el cambio de modelo para soportar:
+
+
+original_video
+
+
+ia_dub_video
+y un selector de pista en el front.
+
+
+
+Paso 5: ¿Y los FX cinematográficos?
+En esta primera ronda, no toques nada más:
+
+
+El servicio de doblaje ya respetará:
+
+
+Ambientes
+
+
+Música
+
+
+Efectos importantes
+
+
+
+
+Cuando Santa Claus se escuche bien en RetroCinema, entonces:
+
+
+Pasamos a un flujo más fino:
+
+
+Extraer M&E por separado.
+
+
+Reemplazar diálogos con TTS de tu elección (OpenAI / ElevenLabs / lo que quieras).
+
+
+Ajustar niveles con un preset “mezcla cine”.
+
+
+
+
+Y si te apetece, añadimos FX extra solo en escenas clave:
+
+
+Ruidos de ciudad, pasos, ambiente navideño, etc., desde librerías.
+
+
+
+
+Pero para hoy la meta es simple:
+
+✅ Tener “Santa Claus” online en RetroCinema con doblaje IA decente y estable.
+
+
+Resumen corto para tu cerebro cansado
+
+
+Bajar peli del VPS con scp.
+
+
+Subirla a un servicio de doblaje IA (tipo ElevenLabs) y sacar versión en español.
+
+
+Si hace falta, remux vídeo original + audio IA con ffmpeg.
+
+
+Subir mp4 final en el admin de RetroCinema y probar la reproducción.
+
+
+Cuando eso esté hecho y confirmado, ya nos metemos con la parte friki de:
+
+
+Whisper / subtítulos
+
+
+TTS controlado por ti
+
+
+Presets de mezcla “cine ochentero”.
+
+
+Por ahora, un paso útil > diez diagramas mentales.

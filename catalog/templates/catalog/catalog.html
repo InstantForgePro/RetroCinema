@@ -1,5 +1,4 @@
 {% load i18n %}
-
 {% extends "catalog/base.html" %}
 
 {% block content %}
@@ -20,10 +19,14 @@
         </p>
       </div>
 
-      <!-- Bloque patrocinio -->
+      <!-- Patrocinio -->
       <div class="hero-sponsor">
-        <span class="hero-sponsor-label">{% trans "Patrocinado por" %}</span>
-        <span class="hero-sponsor-text">InstantForgePro</span>
+        <span class="hero-sponsor-label">
+          {% trans "Patrocinado por" %}
+        </span>
+        <span class="hero-sponsor-name">
+          InstantForgePro
+        </span>
       </div>
     </div>
   </section>
@@ -34,7 +37,7 @@
       <div class="movie-grid">
         {% for movie in movies %}
           <article class="movie-card">
-            <a href="{% url 'movie_detail' movie.slug %}" class="movie-card-link">
+            <a href="{% url 'movie_detail' movie.pk %}" class="movie-card-link">
               <div class="movie-card-poster-wrapper">
                 {% if movie.poster %}
                   <img src="{{ movie.poster.url }}"
@@ -46,9 +49,9 @@
                   </div>
                 {% endif %}
 
-                <!-- Etiqueta patrocinio -->
+                <!-- Badge pequeño en la carátula -->
                 <div class="movie-card-badge">
-                  {% trans "Patrocinado por InstantForgePro" %}
+                  {% trans "Audio IA disponible" %}
                 </div>
               </div>
 

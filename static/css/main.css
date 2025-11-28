@@ -1,0 +1,173 @@
+.page--catalog {
+  padding: 3rem 6vw;
+  color: #f7fafc;
+  background: radial-gradient(circle at top left, #182b4d, #050816);
+  min-height: 100vh;
+}
+
+/* Hero */
+.hero-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-bottom: 2.5rem;
+}
+
+.hero-kicker {
+  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #60a5fa;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  margin: 0.4rem 0 0.8rem;
+}
+
+.hero-subtitle {
+  max-width: 36rem;
+  color: #cbd5f5;
+}
+
+/* Bloque Birdy */
+.hero-birdy {
+  background: rgba(15, 118, 110, 0.18);
+  border: 1px solid rgba(34, 197, 170, 0.6);
+  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.hero-birdy-label {
+  color: #6ee7b7;
+  font-size: 0.8rem;
+}
+
+.hero-birdy-text {
+  font-weight: 600;
+}
+
+/* Grid pelis */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.8rem;
+}
+
+/* Tarjeta peli */
+.movie-card {
+  background: linear-gradient(135deg, #0b1220, #020617);
+  border-radius: 1.2rem;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.75);
+}
+
+.movie-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.movie-card-poster-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.movie-card-poster {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Badge “你好 Birdy” encima del póster */
+.movie-card-badge {
+  position: absolute;
+  bottom: 0.9rem;
+  right: 0.9rem;
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  border: 1px solid rgba(96, 165, 250, 0.7);
+}
+
+/* Body tarjeta */
+.movie-card-body {
+  padding: 1rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.movie-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.movie-card-title {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.movie-card-year {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.movie-card-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.movie-tag {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.55);
+}
+
+.movie-card-cta {
+  margin-top: 0.3rem;
+  align-self: flex-start;
+  background: linear-gradient(90deg, #3b82f6, #22c55e);
+  border: none;
+  color: white;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+}
+
+/* Estado vacío */
+.empty-state {
+  margin-top: 2rem;
+  padding: 2rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.7);
+  max-width: 32rem;
+}
+
+.empty-state-btn {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  background: #3b82f6;
+  color: white;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
